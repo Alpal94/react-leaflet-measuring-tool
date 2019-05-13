@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Map, TileLayer, ZoomControl } from 'react-leaflet'
 
-import { BoxZoomControl } from 'react-leaflet-box-zoom'
+import { BoxZoomControl } from 'react-leaflet-measuring-tool'
 import { CoordinatesControl } from 'react-leaflet-coordinates';
 
 export default class App extends Component {

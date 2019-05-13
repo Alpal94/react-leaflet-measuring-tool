@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import PropTypes from 'prop-types';
+import distance from '@turf/distance';
 import './styles.css';
 import {
 	withLeaflet, 
@@ -29,7 +30,7 @@ L.Control.BoxZoomControl = L.Control.extend({
 	_isActive: false,
 	_startLatLng: null,
 	_sticky: false,
-	_drawPolygon: null,
+	_drawPolyline: null,
 	_boxZoomButton: null,
 
 	initialize: function(element) {
@@ -55,6 +56,7 @@ L.Control.BoxZoomControl = L.Control.extend({
 		var boxZoomButton = L.DomUtil.create('button');
 		boxZoomButton.setAttribute('style',this._style);
 		boxZoomButton.setAttribute('id', 'box-zoom-button');
+		this.map = map;
 		
 		boxZoomButton.onclick = (e) => {
 			if (this._isActive) {
@@ -85,17 +87,32 @@ L.Control.BoxZoomControl = L.Control.extend({
 	},
 	_handleMouseMove: function(e) {
 		if (this._startLatLng === null || this._startLatLng === undefined) { return; }
+		var map = this.map;
 
 		var ne = this._startLatLng;
-		var nw = new L.LatLng(this._startLatLng.lat, e.latlng.lng);
 		var sw = e.latlng;
-		var se = new L.LatLng(e.latlng.lat, this._startLatLng.lng);
+		if (this._tooltip === null || this._tooltip === undefined) {
+			this._tooltip = L.tooltip();
+			this._tooltip.setTooltipContent('0m');
+			this._tooltip.bindTooltip(map);
+			this._tooltip.openTooltip();
+		}
+		let rulerLength = distance(
+			[parseFloat(ne.lng), parseFloat(ne.lat)],
+			[parseFloat(sw.lng), parseFloat(sw.lat)]
+		);
+		var isKM = rulerLength > 1 ? true : false;
+		let _distance = isKM ? rulerLength.toFixed(2) : (rulerLength * 1000).toFixed(2);
 
-		if (this._drawPolygon === null || this._drawPolygon === undefined) {
-			this._drawPolygon = new L.Polygon([ne, nw, sw, se]);
-			this._map.addLayer(this._drawPolygon);
+		this._tooltip.setTooltipContent(`${_distance} ${isKM ? 'km' : 'm'}`);
+		this._tooltip.setLatLng(e.latlng).addTo(map);
+		this._tooltip.openTooltip();
+
+		if (this._drawPolyline === null || this._drawPolyline === undefined) {
+			this._drawPolyline = new L.Polyline([ne, sw]);
+			this._map.addLayer(this._drawPolyline);
 		} else {
-			this._drawPolygon.setLatLngs([ne, nw, sw, se]);
+			this._drawPolyline.setLatLngs([ne, sw]);
 		}
 	},
 	_handleMouseUp: function(e) {
@@ -106,18 +123,6 @@ L.Control.BoxZoomControl = L.Control.extend({
 			this._startLatLng.lat === e.latlng.lat ||
 			this._startLatLng.lng === e.latlng.lng ||
 			this._isActive === false) { return; }
-
-		var ne = this._startLatLng;
-		var nw = new L.LatLng(this._startLatLng.lat, e.latlng.lng);
-		var sw = e.latlng;
-		var se = new L.LatLng(e.latlng.lat, this._startLatLng.lng);
-
-		var bounds = L.latLngBounds([ne, sw])
-		map.fitBounds(bounds, { animate: false });
-
-		this._startLatLng = null;
-		map.removeLayer(this._drawPolygon);
-		this._drawPolygon = null;
 
 		if (this._sticky) {
 			this._startLatLng = null;

@@ -1,6 +1,6 @@
 {
-  "name": "react-leaflet-box-zoom-example",
-  "homepage": "https://ChrisLowe-Takor.github.io/react-leaflet-box-zoom",
+  "name": "react-leaflet-measuring-tool-example",
+  "homepage": "https://ChrisLowe-Takor.github.io/react-leaflet-measuring-tool",
   "version": "1.0.1",
   "license": "MIT",
   "private": true,
@@ -10,12 +10,12 @@
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-leaflet": "^2.1.2",
-    "react-leaflet-box-zoom": "link:..",
+    "react-leaflet-measuring-tool": "link:..",
     "react-leaflet-coordinates": "^1.0.0",
     "react-scripts": "^1.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
